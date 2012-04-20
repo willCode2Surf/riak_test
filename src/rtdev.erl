@@ -96,9 +96,38 @@ start(Node) ->
     run_riak(node_id(Node), ?PATH, "start"),
     ok.
 
+reset() ->
+    ok.
+
+rsync(_, _, _) ->
+    ok.
+
 node_id(Node) ->
     NodeMap = rt:config(rt_nodes),
     orddict:fetch(Node, NodeMap).
+
+spawn_cmd(Cmd) ->
+    Port = open_port({spawn, Cmd}, [exit_status]),
+    Port.
+
+wait_for_cmd(Port) ->
+    rt:wait_until(node(),
+                  fun(_) ->
+                          receive
+                              {Port, Msg={exit_status, _}} ->
+                                  catch port_close(Port),
+                                  self() ! {Port, Msg},
+                                  true
+                          after 0 ->
+                                  false
+                          end
+                  end),
+    receive
+        {Port, {exit_status, Status}} ->
+            Status
+    after 0 ->
+            timeout
+    end.
 
 pmap(F, L) ->
     Parent = self(),

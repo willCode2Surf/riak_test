@@ -52,6 +52,12 @@ update_app_config(Node, Config) ->
 deploy_nodes(NumNodes) ->
     ?HARNESS:deploy_nodes(NumNodes).
 
+reset_harness() ->
+    ?HARNESS:reset().
+
+rsync(Node, Source, Dest) ->
+    ?HARNESS:rsync(Node, Source, Dest).
+
 %% @doc Start the specified Riak node
 start(Node) ->
     ?HARNESS:start(Node).
@@ -86,6 +92,14 @@ remove(Node, OtherNode) ->
 %% @doc Have `Node' mark `OtherNode' as down
 down(Node, OtherNode) ->
     rpc:call(Node, riak_kv_console, down, [[atom_to_list(OtherNode)]]).
+
+%% @doc Spawn `Cmd' on the machine running the test harness
+spawn_cmd(Cmd) ->
+    ?HARNESS:spawn_cmd(Cmd).
+
+%% @doc Wait for a command spawned by `spawn_cmd', returning the exit status
+wait_for_cmd(CmdHandle) ->
+    ?HARNESS:wait_for_cmd(CmdHandle).
 
 %% @doc Ensure that the specified node is a singleton node/cluster -- a node
 %%      that owns 100% of the ring.
