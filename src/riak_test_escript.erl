@@ -276,7 +276,7 @@ run_test(Test, Outdir, TestMetaData, Report, _HarnessArgs, NumTests) ->
     end,
     SingleTestResult.
 
-print_summary(TestResults, {Coverage, AppCovList}, Verbose) ->
+print_summary(TestResults, CoverResult, Verbose) ->
     io:format("~nTest Results:~n"),
 
     Results = [
@@ -300,15 +300,20 @@ print_summary(TestResults, {Coverage, AppCovList}, Verbose) ->
     io:format("---------------------------------------------~n"),
     io:format("~w Tests Failed~n", [FailCount]),
     io:format("~w Tests Passed~n", [PassCount]),
-
     Percentage = case PassCount == 0 andalso FailCount == 0 of
         true -> 0;
         false -> (PassCount / (PassCount + FailCount)) * 100
     end,
     io:format("That's ~w% for those keeping score~n", [Percentage]),
-    io:format("Coverage : ~.1f%~n", [Coverage]),
-    [io:format("    ~s : ~.1f%~n", [App, AppCov])
-     || {App, AppCov, _} <- AppCovList],
+
+    case CoverResult of
+        cover_disabled ->
+            ok;
+        {Coverage, AppCov} ->
+            io:format("Coverage : ~.1f%~n", [Coverage]),
+            [io:format("    ~s : ~.1f%~n", [App, Cov])
+             || {App, Cov, _} <- AppCov]
+    end,
     ok.
 
 test_name_width(Results) ->

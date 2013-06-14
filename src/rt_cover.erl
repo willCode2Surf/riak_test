@@ -42,7 +42,7 @@
 if_coverage(Fun) ->
     case rt_config:get(cover_enabled, true) of
         false ->
-            ok;
+            cover_disabled;
         true ->
             Fun()
     end.
@@ -100,7 +100,7 @@ start(CoverMods) ->
 find_cover_modules() ->
     case rt_config:get(cover_modules, []) of
         [] ->
-            Apps = rt_config:get(cover_apps, all),
+            Apps = rt_config:get(cover_apps, []),
             AppMods = find_app_modules(Apps),
             rt_config:set(cover_modules, AppMods),
             AppMods;
